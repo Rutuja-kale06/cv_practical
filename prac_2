@@ -1,0 +1,45 @@
+img = imread("OIP.jpg");
+
+% Convert to grayscale if RGB
+if size(img,3) == 3
+    grayimg = rgb2gray(img);
+else
+    grayimg = img;
+end
+
+grayimg = double(grayimg);
+[rows, cols] = size(grayimg);
+
+% Gaussian kernel
+kernel_Size = 10;
+sigma = 1.0;
+kernel = fspecial('gaussian', kernel_Size, sigma);
+
+% Pad image
+pad_size = floor(kernel_Size/2);
+padded = padarray(grayimg, [pad_size pad_size], 0, 'both');
+
+% Initialize output
+output = zeros(rows, cols);
+
+% Convolution
+for i = 1:rows
+    for j = 1:cols
+        neighborhood = padded(i:i+kernel_Size-1, j:j+kernel_Size-1);
+        output(i,j) = sum(sum(neighborhood .* kernel));
+    end
+end
+
+% Display
+figure;
+subplot(2,2,1);
+imshow(img);
+title("Original Image");
+
+subplot(2,2,2);
+imshow(uint8(grayimg));
+title("Grayscale Image");
+
+subplot(2,2,3);
+imshow(uint8(output));
+title("Gaussian Smoothed");
